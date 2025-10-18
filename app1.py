@@ -86,7 +86,7 @@ def scrape_website(base_url):
     # ✅ Save only successful pages for preview
     last_scraped_content = {k: v for k, v in all_content.items() if v['text'].strip()}
 
-    # ✅ Save successful pages only to DOCX
+        # ✅ Save successful pages only to DOCX
     doc = Document()
     section = doc.sections[0]
     section.page_width = Inches(8.27)
@@ -97,18 +97,36 @@ def scrape_website(base_url):
     section.bottom_margin = Inches(0.4)
     section._sectPr.xpath('./w:cols')[0].set('num', '3')
 
-    doc.add_heading("Scraped Website Content", level=1)
+    # Add title of document
+    title_para = doc.add_paragraph("Scraped Website Content")
+    title_para.style = doc.styles['Normal']
+    title_para.paragraph_format.space_before = Pt(0)
+    title_para.paragraph_format.space_after = Pt(0)
+    title_para.paragraph_format.line_spacing = 1
+    for run in title_para.runs:
+        run.font.size = Pt(3)
+        run.bold = False
 
     for _, data in last_scraped_content.items():
-        h = doc.add_heading(data['title'], level=2)
-        for run in h.runs:
+        # ✅ Add title (as plain text, no blank lines)
+        p_title = doc.add_paragraph(data['title'])
+        p_title.style = doc.styles['Normal']
+        p_title.paragraph_format.space_before = Pt(0)
+        p_title.paragraph_format.space_after = Pt(0)
+        p_title.paragraph_format.line_spacing = 1
+        for run in p_title.runs:
             run.font.size = Pt(3)
-            run.bold = True
-        p = doc.add_paragraph(data['text'])
-        for run in p.runs:
+            run.bold = False
+
+        # ✅ Add paragraph text (no blank lines)
+        p_body = doc.add_paragraph(data['text'])
+        p_body.style = doc.styles['Normal']
+        p_body.paragraph_format.space_before = Pt(0)
+        p_body.paragraph_format.space_after = Pt(0)
+        p_body.paragraph_format.line_spacing = 1
+        for run in p_body.runs:
             run.font.size = Pt(3)
-        p.space_before = Pt(0)
-        p.space_after = Pt(0)
+
 
     output_path = "scraped_content.docx"
     doc.save(output_path)
@@ -152,7 +170,7 @@ def download_file():
 
 
 if __name__ == "__main__":
-    #app.run(debug=True)
+    # app.run(debug=True)
 
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
